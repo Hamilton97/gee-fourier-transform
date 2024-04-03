@@ -1,9 +1,24 @@
+# Google Earth Engine Fourier Transform
+
 from math import pi
-from typing import Any, Callable
+from typing import Callable
 import ee
+
+if not ee.data._credentials:
+    ee.Initialize()
 
 
 class S2Dataset(ee.ImageCollection):
+    """
+    A class representing a Sentinel-2 dataset in Google Earth Engine.
+
+    This class extends the `ee.ImageCollection` class and provides additional methods
+    for processing Sentinel-2 imagery.
+
+    Attributes:
+        None
+    """
+
     def __init__(self):
         super().__init__("COPERNICUS/S2_HARMONIZED")
 
@@ -19,7 +34,7 @@ class S2Dataset(ee.ImageCollection):
 
     @staticmethod
     def cloud_mask(image: ee.Image):
-        qa = image.select('QA60')
+        qa = image.select("QA60")
         # Bits 10 and 11 are clouds and cirrus, respectively.
         cloud_bit_mask = 1 << 10
         cirrus_bit_mask = 1 << 11
@@ -31,7 +46,6 @@ class S2Dataset(ee.ImageCollection):
         )
 
         return image.updateMask(mask).divide(10000)
-
 
 
 def get_names(prefix: str, frequencies: list[int]) -> list[str]:
