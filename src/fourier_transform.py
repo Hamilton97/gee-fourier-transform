@@ -4,8 +4,8 @@ import ee
 
 
 class S2Dataset(ee.ImageCollection):
-    def __init__(self, args: Any):
-        super().__init__(args)
+    def __init__(self):
+        super().__init__("COPERNICUS/S2_HARMONIZED")
 
     def add_ndvi(self):
         self.map(
@@ -19,7 +19,19 @@ class S2Dataset(ee.ImageCollection):
 
     @staticmethod
     def cloud_mask(image: ee.Image):
-        pass
+        qa = image.select('QA60')
+        # Bits 10 and 11 are clouds and cirrus, respectively.
+        cloud_bit_mask = 1 << 10
+        cirrus_bit_mask = 1 << 11
+        # Both flags should be set to zero, indicating clear conditions.
+        mask = (
+            qa.bitwiseAnd(cloud_bit_mask)
+            .eq(0)
+            .And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
+        )
+
+        return image.updateMask(mask).divide(10000)
+
 
 
 def get_names(prefix: str, frequencies: list[int]) -> list[str]:
