@@ -45,7 +45,7 @@ class S2Dataset(ee.ImageCollection):
             .And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
         )
 
-        return image.updateMask(mask).divide(10000)
+        return image.updateMask(mask)
 
 
 def get_names(prefix: str, frequencies: list[int]) -> list[str]:
